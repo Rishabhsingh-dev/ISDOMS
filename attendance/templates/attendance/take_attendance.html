@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>ISDOMS | Take Attendance</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f3f5f9;
+            margin: 0;
+            color: #202938;
+        }
+
+        header {
+            background: #172554;
+            color: white;
+            padding: 22px 7%;
+        }
+
+        main {
+            max-width: 1050px;
+            margin: 35px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px #00000010;
+            margin-bottom: 20px;
+        }
+
+        .details {
+            line-height: 1.8;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 14px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            background: #f8fafc;
+        }
+
+        select {
+            padding: 9px;
+            width: 145px;
+            border: 1px solid #cbd5e1;
+            border-radius: 5px;
+            background: white;
+        }
+
+        .button {
+            display: inline-block;
+            border: none;
+            background: #2563eb;
+            color: white;
+            padding: 12px 18px;
+            margin-top: 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .secondary {
+            background: #475569;
+        }
+
+        .message {
+            padding: 12px;
+            margin-bottom: 12px;
+            background: #dcfce7;
+            border-radius: 6px;
+        }
+
+        .error {
+            background: #fee2e2;
+        }
+
+        @media (max-width: 700px) {
+            .card {
+                overflow-x: auto;
+            }
+
+            table {
+                min-width: 600px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>ISDOMS</h1>
+    <p>Student Attendance</p>
+</header>
+
+<main>
+
+    <div class="card">
+
+        <h2>
+            {{ session.subject.subject_code }}
+            — {{ session.subject.subject_name }}
+        </h2>
+
+        <div class="details">
+            <strong>Date:</strong>
+            {{ session.session_date|date:"d M Y" }}
+            <br>
+
+            <strong>Start Time:</strong>
+            {{ session.start_time|time:"H:i" }}
+            <br>
+
+            <strong>Academic Year:</strong>
+            {{ session.academic_year }}
+            <br>
+
+            <strong>Topic:</strong>
+            {{ session.topic|default:"Not specified" }}
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <h2>Mark Student Attendance</h2>
+
+        {% for message in messages %}
+            <div class="message
+                {% if message.tags == 'error' %}error{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+
+        {% if enrollments %}
+
+        <form method="post">
+
+            {% csrf_token %}
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Student ID</th>
+                        <th>Student Name</th>
+                        <th>Attendance Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for enrollment in enrollments %}
+
+                    <tr>
+
+                        <td>
+                            {{ enrollment.student.student_id }}
+                        </td>
+
+                        <td>
+                            {{ enrollment.student.full_name }}
+                        </td>
+
+                        <td>
+
+                            <select
+                                name="status_{{ enrollment.student.pk }}"
+                                required
+                            >
+
+                                <option
+                                    value=""
+                                    {% if not enrollment.current_status %}selected{% endif %}
+                                    disabled
+                                >
+                                    Select status
+                                </option>
+
+                                <option
+                                    value="present"
+                                    {% if enrollment.current_status == "present" %}selected{% endif %}
+                                >
+                                    Present
+                                </option>
+
+                                <option
+                                    value="absent"
+                                    {% if enrollment.current_status == "absent" %}selected{% endif %}
+                                >
+                                    Absent
+                                </option>
+
+                                <option
+                                    value="late"
+                                    {% if enrollment.current_status == "late" %}selected{% endif %}
+                                >
+                                    Late
+                                </option>
+
+                                <option
+                                    value="excused"
+                                    {% if enrollment.current_status == "excused" %}selected{% endif %}
+                                >
+                                    Excused
+                                </option>
+
+                            </select>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+            <button class="button" type="submit">
+                Save Attendance
+            </button>
+
+        </form>
+
+        {% else %}
+
+        <p>
+            No students are enrolled in this subject
+            for this academic year.
+        </p>
+
+        <p>
+            Open Django Administration and go to
+            <strong>Academics → Enrollments</strong>.
+            Create enrollments matching this session's
+            subject and academic year, with status Enrolled.
+        </p>
+
+        {% endif %}
+
+        <a
+            href="{% url 'attendance:session_list' %}"
+            class="button secondary"
+        >
+            Back to Dashboard
+        </a>
+
+    </div>
+
+</main>
+
+</body>
+</html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>ISDOMS | Attendance Report</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f3f5f9;
+            margin: 0;
+            color: #202938;
+        }
+
+        header {
+            background: #172554;
+            color: white;
+            padding: 22px 7%;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 35px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px #00000010;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 14px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            background: #f8fafc;
+        }
+
+        .percentage {
+            font-weight: bold;
+        }
+
+        .low {
+            color: #dc2626;
+        }
+
+        .good {
+            color: #15803d;
+        }
+
+        .nav-link {
+            color: white;
+            margin-right: 18px;
+            text-decoration: none;
+        }
+
+        .empty {
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+
+        @media (max-width: 700px) {
+            table {
+                min-width: 850px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>ISDOMS</h1>
+
+    <p>Integrated Student Development and Outcome Monitoring System</p>
+
+    <a class="nav-link" href="/attendance/">
+        Attendance Dashboard
+    </a>
+
+    <a class="nav-link" href="/admin/">
+        Administration
+    </a>
+</header>
+
+<main>
+
+    <div class="card">
+
+        <h2>Student Attendance Report</h2>
+
+        <p>
+            Attendance percentages are calculated from
+            recorded attendance for each enrolled subject.
+        </p>
+
+        {% if report_rows %}
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Student ID</th>
+                    <th>Student Name</th>
+                    <th>Subject</th>
+                    <th>Academic Year</th>
+                    <th>Attended</th>
+                    <th>Counted Classes</th>
+                    <th>Attendance</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for row in report_rows %}
+
+                <tr>
+
+                    <td>
+                        {{ row.student_id }}
+                    </td>
+
+                    <td>
+                        {{ row.student_name }}
+                    </td>
+
+                    <td>
+                        {{ row.subject_code }} -
+                        {{ row.subject_name }}
+                    </td>
+
+                    <td>
+                        {{ row.academic_year }}
+                    </td>
+
+                    <td>
+                        {{ row.attended_classes }}
+                    </td>
+
+                    <td>
+                        {{ row.total_classes }}
+                    </td>
+
+                    <td class="percentage
+                        {% if row.percentage is not None %}
+                            {% if row.percentage < 75 %}
+                                low
+                            {% else %}
+                                good
+                            {% endif %}
+                        {% endif %}
+                    ">
+                        {% if row.percentage is not None %}
+                            {{ row.percentage }}%
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+        {% else %}
+
+        <div class="empty">
+            <p>
+                No active student enrollments were found.
+            </p>
+
+            <p>
+                Register a student, add a subject, and create
+                an enrollment to begin monitoring attendance.
+            </p>
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</main>
+
+</body>
+</html>
